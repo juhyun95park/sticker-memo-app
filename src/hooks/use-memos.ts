@@ -7,37 +7,43 @@ const STORAGE_KEY = "sticker-memo-app-memos";
 
 const VALID_CATEGORIES: MemoCategory[] = ["todo", "idea", "other"];
 
-function hasRequiredMemoFields(memo: any): boolean {
+function hasRequiredMemoFields(memo: unknown): memo is Record<string, unknown> {
   return (
-    memo &&
+    memo !== null &&
     typeof memo === "object" &&
-    typeof memo.id === "string" &&
-    memo.id.length > 0 &&
-    typeof memo.title === "string" &&
-    typeof memo.content === "string" &&
-    typeof memo.color === "string" &&
-    typeof memo.createdAt === "number" &&
-    typeof memo.updatedAt === "number"
+    "id" in memo &&
+    typeof (memo as Record<string, unknown>).id === "string" &&
+    (memo as Record<string, unknown>).id !== "" &&
+    "title" in memo &&
+    typeof (memo as Record<string, unknown>).title === "string" &&
+    "content" in memo &&
+    typeof (memo as Record<string, unknown>).content === "string" &&
+    "color" in memo &&
+    typeof (memo as Record<string, unknown>).color === "string" &&
+    "createdAt" in memo &&
+    typeof (memo as Record<string, unknown>).createdAt === "number" &&
+    "updatedAt" in memo &&
+    typeof (memo as Record<string, unknown>).updatedAt === "number"
   );
 }
 
-function normalizeMemo(raw: any): Memo {
+function normalizeMemo(raw: Record<string, unknown>): Memo {
   const category =
-    raw.category && VALID_CATEGORIES.includes(raw.category)
+    raw.category && VALID_CATEGORIES.includes(raw.category as MemoCategory)
       ? (raw.category as MemoCategory)
       : "other";
   return {
-    id: raw.id,
-    title: raw.title,
-    content: raw.content,
-    color: raw.color,
+    id: raw.id as string,
+    title: raw.title as string,
+    content: raw.content as string,
+    color: raw.color as MemoColor,
     category,
-    createdAt: raw.createdAt,
-    updatedAt: raw.updatedAt,
+    createdAt: raw.createdAt as number,
+    updatedAt: raw.updatedAt as number,
   };
 }
 
-function isValidMemo(memo: any): memo is Memo {
+function isValidMemo(memo: unknown): memo is Memo {
   return hasRequiredMemoFields(memo);
 }
 
