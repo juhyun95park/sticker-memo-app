@@ -14,8 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MEMO_CATEGORIES, getCategoryLabel, type MemoCategory } from "@/types/memo";
-import { createRoom } from "@/lib/rooms";
-import { ChevronDown, ListFilter, Users, Copy, Check } from "lucide-react";
+import { ChevronDown, ListFilter } from "lucide-react";
 
 type CategoryFilter = MemoCategory | "all";
 
@@ -25,9 +24,6 @@ export default function Home() {
   const [newMemoIds, setNewMemoIds] = useState<Set<string>>(new Set());
   const [deletingMemoIds, setDeletingMemoIds] = useState<Set<string>>(new Set());
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
-  const [createdRoomId, setCreatedRoomId] = useState<string | null>(null);
-  const [isCreatingRoom, setIsCreatingRoom] = useState(false);
-  const [copiedRoomId, setCopiedRoomId] = useState(false);
 
   const filteredMemos =
     categoryFilter === "all"
@@ -87,30 +83,6 @@ export default function Home() {
     reorderMemos(sourceIndexInFull, destIndexInFull);
   };
 
-  const handleCreateRoom = async () => {
-    setIsCreatingRoom(true);
-    setCreatedRoomId(null);
-    try {
-      const { roomId } = await createRoom();
-      setCreatedRoomId(roomId);
-    } catch {
-      // 에러는 createRoom에서 throw, 필요 시 토스트 등으로 표시 가능
-    } finally {
-      setIsCreatingRoom(false);
-    }
-  };
-
-  const handleCopyRoomId = async () => {
-    if (!createdRoomId) return;
-    try {
-      await navigator.clipboard.writeText(createdRoomId);
-      setCopiedRoomId(true);
-      setTimeout(() => setCopiedRoomId(false), 2000);
-    } catch {
-      // 복사 실패 시 무시
-    }
-  };
-
   if (!isLoaded) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -139,38 +111,6 @@ export default function Home() {
           </Button>
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2 self-start sm:self-center">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleCreateRoom}
-            disabled={isCreatingRoom}
-            className="gap-1.5"
-          >
-            <Users className="size-4 shrink-0" />
-            {isCreatingRoom ? "만드는 중…" : "방 만들기"}
-          </Button>
-          {createdRoomId && (
-            <div className="flex items-center gap-1.5 rounded-md border bg-muted/50 px-2 py-1.5 text-sm">
-              <span className="max-w-[140px] truncate font-mono text-muted-foreground" title={createdRoomId}>
-                {createdRoomId}
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0"
-                onClick={handleCopyRoomId}
-                title="방 번호 복사"
-              >
-                {copiedRoomId ? (
-                  <Check className="size-4 text-green-600" />
-                ) : (
-                  <Copy className="size-4" />
-                )}
-              </Button>
-            </div>
-          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
